@@ -12,10 +12,15 @@ use src::hittable::{HitRecord, Hittable};
 use src::hittable_list::HittableList;
 use src::sphere::Sphere;
 
-fn ray_color(r: &Ray, world: &dyn Hittable) -> Color {
+fn ray_color(r: &Ray, world: &dyn Hittable, depth: i32) -> Color {
+    if depth <= 0 {
+        return Color::ZERO;
+    }
+
     let mut rec = HitRecord::DEFAULT;
-    if world.hit(r, 0.0, INFINITY, &mut rec) {
-        return 0.5 * (rec.normal + Color::ONE);
+    if world.hit(r, 0.001, INFINITY, &mut rec) {
+        let direction = rec.normal + Vec3::random_unit();
+        return 0.5 * ray_color(&Ray::new(rec.p, direction), world, depth - 1);
     }
 
     let unit_dir = r.dir.unit();
@@ -26,9 +31,10 @@ fn ray_color(r: &Ray, world: &dyn Hittable) -> Color {
 
 fn main() {
     const ASPECT_RATIO: f64 = 16.0 / 9.0;
-    const IMAGE_WIDTH: i32 = 800;
+    const IMAGE_WIDTH: i32 = 400;
     const IMAGE_HEIGHT: i32 = (IMAGE_WIDTH as f64 / ASPECT_RATIO) as i32;
     const SAMPLES_PER_PIXEL: i32 = 100;
+    const MAX_DEPTH: i32 = 50;
 
     let mut world = HittableList::new();
     world.add(Box::new(Sphere::new(Point3::new(0.0, 0.0, -1.0), 0.5)));
@@ -50,7 +56,7 @@ fn main() {
 
                 let r = cam.get_ray(u, v);
 
-                pixel_color = pixel_color + ray_color(&r, &world);
+                pixel_color = pixel_color + ray_color(&r, &world, MAX_DEPTH);
             }
             write_color(&mut io::stdout(), pixel_color, SAMPLES_PER_PIXEL);
         }

@@ -58,6 +58,33 @@ impl Vec3 {
     pub fn mix(&self, other: Self, c: f64) -> Self {
         (*self * (1.0 - c)) + (other * c)
     }
+
+    pub fn random() -> Self {
+        vec3(random_double(), random_double(), random_double())
+    }
+
+    pub fn random_range(min: f64, max: f64) -> Self {
+        vec3(
+            random_double_range(min, max),
+            random_double_range(min, max),
+            random_double_range(min, max),
+        )
+    }
+
+    pub fn random_unit() -> Vec3 {
+        random_in_unit_sphere().unit()
+    }
+}
+
+pub fn random_in_unit_sphere() -> Vec3 {
+    loop {
+        let p = Vec3::random_range(-1.0, 1.0);
+        if p.len_sqrd() >= 1.0 {
+            continue;
+        }
+
+        return p;
+    }
 }
 
 pub fn vec3(x: f64, y: f64, z: f64) -> Vec3 {
