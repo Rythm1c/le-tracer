@@ -1,2 +1,2 @@
-# le_tracer
+# le tracer
 ray tracer made by a dummy
